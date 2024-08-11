@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Envelope Animation</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f49ed7;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #envelope {
+            width: 300px;
+            height: 200px;
+            position: relative;
+            background: linear-gradient(to bottom right, #fff, #f8e1e1);
+            border: 2px solid #e5a8a8;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            perspective: 1000px;
+            z-index: 1;
+            transition: box-shadow 0.3s ease;
+        }
+
+        #envelope:hover {
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        #flap {
+    width: 100%;
+    height: 60%;
+    background-color: #e94e77;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 5% 5% 30% 30%; /* Apenas as pontas arredondadas */
+    clip-path: polygon(0 0, 50% 100%, 100% 0); /* Forma triangular */
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    transition: transform 1s ease-in-out;
+    z-index: 3;
+    border-bottom: 2px solid #e5a8a8;
+}
+
+
+
+        #envelope.open #flap {
+            transform: rotateX(180deg);
+        }
+
+        #letter-wrapper {
+            position: absolute;
+            top: 40px;
+            left: 20px;
+            width: 260px;
+            height: 140px;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        #letter {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(100%);
+            transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #e94e77;
+            box-sizing: border-box;
+            font-family: 'Georgia', serif;
+        }
+
+        #envelope.open #letter {
+            transform: translateY(50%);
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        #envelope.open #letter.clicked {
+            transform: translateY(0);
+        }
+
+        #envelope.open #cover {
+            height: 0;
+        }
+
+        .heart {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            animation: zigzag 4s ease-in-out infinite;
+            opacity: 0;
+            z-index: 4;
+        }
+
+        .heart svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .heart path {
+            fill: #e94e77;
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        .heart {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            animation: zigzag 4s ease-in-out infinite;
+            opacity: 0;
+            z-index: 4;
+        }
+
+        .heart svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .heart path {
+            fill: #e94e77;
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        
+
+        
+
+        @keyframes zigzag {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50px, -200px) scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(50px, -400px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: 2px solid #e94e77;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: #e94e77;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #e94e77;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div id="envelope">
+    <div id="flap"></div>
+    <div id="letter-wrapper">
+        <div id="cover"></div>
+        <div id="letter">
+            Seus olhos verdes refletem minha alma,<br>
+            você é tudo que eu sempre quis, Debora.
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button id="openBtn">ABRIR</button>
+    <button id="resetBtn">RESETAR</button>
+</div>
+
+<script>
+    const envelope = document.getElementById('envelope');
+    const letter = document.getElementById('letter');
+    const cover = document.getElementById('cover');
+    const openBtn = document.getElementById('openBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    openBtn.addEventListener('click', () => {
+        envelope.classList.add('open');
+        cover.style.height = '0'; // Remove the cover to reveal the letter
+
+        letter.addEventListener('click', () => {
+            letter.classList.add('clicked');
+        });
+
+        for (let i = 0; i < 20; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = `${Math.random() * 240 + 20}px`; 
+            heart.style.top = `${Math.random() * 140 + 20}px`; 
+
+            heart.innerHTML = `
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            `;
+            document.getElementById('envelope').appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 4000); // Ajuste o tempo de remoção conforme necessário
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        envelope.classList.remove('open');
+        letter.classList.remove('clicked');
+        cover.style.height = '70%'; // Restaura a cobertura da carta
+        document.querySelectorAll('.heart').forEach(heart => heart.remove());
+    });
+</script>
+
+</body>
+</html>
